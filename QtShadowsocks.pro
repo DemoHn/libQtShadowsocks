@@ -7,7 +7,7 @@ TEMPLATE = subdirs
 CONFIG  += ordered
 
 SUBDIRS  = lib/libQtShadowsocks.pro \
-           shadowsocks-libqss/shadowsocks-libqss.pro \
-           test/test.pro
+           shadowsocks-libqss/shadowsocks-libqss.pro
+#           test/test.pro
 
 OTHER_FILES += README.md

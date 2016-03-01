@@ -28,7 +28,7 @@ isEmpty(INSTALL_PREFIX) {
 }
 
 isEmpty(BOTAN_VER) {
-    BOTAN_VER = 1.10
+    BOTAN_VER = 1.11
 }
 
 # You should use these lines in your project.
@@ -65,7 +65,16 @@ win32: {
     else:            LIBS += -L../lib/debug
 }
 INCLUDEPATH     += $$top_srcdir/../lib
+
+
 LIBS            += -L$$top_srcdir/../lib \
                    -L../lib \
-                   -lQtShadowsocks \
-                   -lbotan-$$BOTAN_VER
+                   -lQtShadowsocks
+
+unix|win32: LIBS += -L$$PWD/../../../../../../usr/local/lib/ -lbotan
+
+INCLUDEPATH += $$PWD/../../../../../../usr/local/include/botan-1.11
+DEPENDPATH += $$PWD/../../../../../../usr/local/include/botan-1.11
+
+win32:!win32-g++: PRE_TARGETDEPS += $$PWD/../../../../../../usr/local/lib/botan.lib
+else:unix|win32-g++: PRE_TARGETDEPS += $$PWD/../../../../../../usr/local/lib/libbotan.a

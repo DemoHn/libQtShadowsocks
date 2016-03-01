@@ -48,7 +48,7 @@ public:
 
     Address(const Address &o);
     //force the generation of default move constructor
-    Address(Address &&) = default;
+    //Address(Address &&) = default;
 
     QString getAddress() const;
 

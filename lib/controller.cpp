@@ -22,7 +22,6 @@
 
 #include <QHostInfo>
 #include <QTcpSocket>
-#include <botan/init.h>
 #include "controller.h"
 #include "encryptor.h"
 
@@ -34,12 +33,6 @@ Controller::Controller(bool is_local, bool auto_ban, QObject *parent) :
     isLocal(is_local),
     autoBan(auto_ban)
 {
-    try {
-        Botan::LibraryInitializer::initialize("thread_safe");
-    } catch (std::exception &e) {
-        qCritical("%s", e.what());
-    }
-
     tcpServer = new TcpServer(ep, profile.timeout,
                               isLocal,
                               autoBan,
@@ -91,7 +84,6 @@ Controller::~Controller()
     if (tcpServer->isListening()) {
         stop();
     }
-    Botan::LibraryInitializer::deinitialize();
 }
 
 bool Controller::setup(const Profile &p)

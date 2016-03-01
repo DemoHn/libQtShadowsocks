@@ -17,9 +17,6 @@ isEmpty(INSTALL_PREFIX) {
     else: INSTALL_PREFIX = $$top_srcdir
 }
 
-isEmpty(BOTAN_VER) {
-    BOTAN_VER = 1.10
-}
 
 VERSION   = 1.8.4
 DEFINES  += QSS_VERSION=\\\"$$VERSION\\\"
@@ -56,5 +53,4 @@ unix: {
     QMAKE_PKGCONFIG_VERSION = $$VERSION
     QMAKE_PKGCONFIG_DESTDIR = pkgconfig
 
-    PKGCONFIG  += botan-$$BOTAN_VER
 }

@@ -22,12 +22,9 @@
 
 #include "chacha.h"
 #include "common.h"
-#include <botan/loadstor.h>
-#include <botan/rotate.h>
 #include <stdexcept>
 
 using namespace QSS;
-using namespace Botan;
 
 // Using anonymous namespace and static keyword to 'hide' this function
 namespace {

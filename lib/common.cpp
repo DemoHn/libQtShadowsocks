@@ -31,8 +31,8 @@ using namespace QSS;
 QTextStream Common::qOut(stdout, QIODevice::WriteOnly | QIODevice::Unbuffered);
 QVector<QHostAddress> Common::bannedAddressVector;
 QMutex Common::bannedAddressMutex;
-const quint8 Common::ADDRESS_MASK = 0b00001111;//0xf
-const quint8 Common::ONETIMEAUTH_FLAG = 0b00010000;//0x10
+const quint8 Common::ADDRESS_MASK = 15;//0b00001111;//0xf
+const quint8 Common::ONETIMEAUTH_FLAG = 16; //0b00010000;//0x10
 
 const QByteArray Common::version()
 {

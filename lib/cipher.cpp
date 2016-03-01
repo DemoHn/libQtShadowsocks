@@ -21,9 +21,7 @@
  */
 
 #include "cipher.h"
-#include <botan/auto_rng.h>
-#include <botan/key_filt.h>
-#include <botan/lookup.h>
+
 #include <stdexcept>
 #include <QCryptographicHash>
 #include <QMessageAuthenticationCode>
@@ -44,30 +42,10 @@ Cipher::Cipher(const QByteArray &method,
     if (method.contains("RC4")) {
         rc4 = new RC4(key, iv, this);
     } else {
-#if BOTAN_VERSION_CODE < BOTAN_VERSION_CODE_FOR(1,11,0)
+
         if (method.contains("ChaCha")) {
             chacha = new ChaCha(key, iv, this);
-        } else {
-#endif
-        try {
-            std::string str(method.constData(), method.length());
-            Botan::SymmetricKey _key(
-                        reinterpret_cast<const Botan::byte *>(key.constData()),
-                        key.size());
-            Botan::InitializationVector _iv(
-                        reinterpret_cast<const Botan::byte *>(iv.constData()),
-                        iv.size());
-            Botan::Keyed_Filter *filter = Botan::get_cipher(str, _key, _iv,
-                        encode ? Botan::ENCRYPTION : Botan::DECRYPTION);
-            // Botan::pipe will take control over filter
-            // we shouldn't deallocate filter externally
-            pipe = new Botan::Pipe(filter);
-        } catch(Botan::Exception &e) {
-            qWarning("%s\n", e.what());
         }
-#if BOTAN_VERSION_CODE < BOTAN_VERSION_CODE_FOR(1,11,0)
-        }
-#endif
     }
 }
 
@@ -88,20 +66,11 @@ QMap<QByteArray, Cipher::CipherKeyIVLength> Cipher::generateKeyIvMap()
     map.insert("aes-128-cfb", {16, 16});
     map.insert("aes-192-cfb", {24, 16});
     map.insert("aes-256-cfb", {32, 16});
-    map.insert("bf-cfb", {16, 8});
-    map.insert("camellia-128-cfb", {16, 16});
-    map.insert("camellia-192-cfb", {24, 16});
-    map.insert("camellia-256-cfb", {32, 16});
-    map.insert("cast5-cfb", {16, 8});
     map.insert("chacha20", {32, 8});
-    map.insert("chacha20-ietf", {32, 12});
-    map.insert("des-cfb", {8, 8});
-    map.insert("idea-cfb", {16, 8});
-    map.insert("rc2-cfb", {16, 8});
+//    map.insert("chacha20-ietf", {32, 12});
+//    map.insert("rc2-cfb", {16, 8});
     map.insert("rc4-md5", {16, 16});
-    map.insert("salsa20", {32, 8});
-    map.insert("seed-cfb", {16, 16});
-    map.insert("serpent-256-cfb", {32, 16});
+
     return map;
 }
 
@@ -111,26 +80,18 @@ QMap<QByteArray, QByteArray> Cipher::generateCipherNameMap()
     map.insert("aes-128-cfb", "AES-128/CFB");
     map.insert("aes-192-cfb", "AES-192/CFB");
     map.insert("aes-256-cfb", "AES-256/CFB");
-    map.insert("bf-cfb", "Blowfish/CFB");
-    map.insert("camellia-128-cfb", "Camellia-128/CFB");
-    map.insert("camellia-192-cfb", "Camellia-192/CFB");
-    map.insert("camellia-256-cfb", "Camellia-256/CFB");
-    map.insert("cast5-cfb", "CAST-128/CFB");
     map.insert("chacha20", "ChaCha");
-    map.insert("chacha20-ietf", "ChaCha");
-    map.insert("des-cfb", "DES/CFB");
-    map.insert("idea-cfb", "IDEA/CFB");
-    map.insert("rc2-cfb", "RC2/CFB");
+//    map.insert("chacha20-ietf", "ChaCha");
+//    map.insert("rc2-cfb", "RC2/CFB");
     map.insert("rc4-md5", "RC4-MD5");
-    map.insert("salsa20", "Salsa20");
-    map.insert("seed-cfb", "SEED/CFB");
-    map.insert("serpent-256-cfb", "Serpent/CFB");
+//    map.insert("salsa20", "Salsa20");
+
     return map;
 }
 
 QByteArray Cipher::update(const QByteArray &data)
 {
-    if (chacha) {
+/*    if (chacha) {
         return chacha->update(data);
     } else if (rc4) {
         return rc4->update(data);
@@ -143,7 +104,7 @@ QByteArray Cipher::update(const QByteArray &data)
         return out;
     } else {
         throw std::runtime_error("Underlying ciphers are all uninitialised!");
-    }
+    }*/
 }
 
 const QByteArray &Cipher::getIV() const
