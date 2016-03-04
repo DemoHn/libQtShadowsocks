@@ -34,31 +34,24 @@ Cipher::Cipher(const QByteArray &method,
                bool encode,
                QObject *parent) :
     QObject(parent),
-    _method(NONE),
+    pipe(nullptr),
+    rc4(nullptr),
+    chacha(nullptr),
     iv(iv)
 {
-
-    _encode = encode;
     if (method.contains("RC4")) {
         rc4 = new RC4(key, iv, this);
-        _method = M_RC4;
-    }
-    else if(method.contains("Salsa"))
-    {
-        salsa20 = new Salsa20(key, iv);
-        _method = M_SALSA20;
-    }else if(method.contains("AES"))
-    {
-        aes     = new AES(key, iv);
-        _method = M_AES;
-    }else{
-        qWarning() << "no such cipher method : " << method;
+    } else {
+
+        if (method.contains("ChaCha")) {
+            chacha = new ChaCha(key, iv, this);
+        }
     }
 }
 
 Cipher::~Cipher()
 {
-//    if (pipe)   delete pipe;
+    if (pipe)   delete pipe;
 }
 
 const QMap<QByteArray, Cipher::CipherKeyIVLength> Cipher::keyIvMap =
@@ -73,11 +66,11 @@ QMap<QByteArray, Cipher::CipherKeyIVLength> Cipher::generateKeyIvMap()
     map.insert("aes-128-cfb", {16, 16});
     map.insert("aes-192-cfb", {24, 16});
     map.insert("aes-256-cfb", {32, 16});
-//    map.insert("chacha20", {32, 8});
+    map.insert("chacha20", {32, 8});
 //    map.insert("chacha20-ietf", {32, 12});
 //    map.insert("rc2-cfb", {16, 8});
     map.insert("rc4-md5", {16, 16});
-    map.insert("salsa20", {32, 8});
+
     return map;
 }
 
@@ -87,31 +80,17 @@ QMap<QByteArray, QByteArray> Cipher::generateCipherNameMap()
     map.insert("aes-128-cfb", "AES-128/CFB");
     map.insert("aes-192-cfb", "AES-192/CFB");
     map.insert("aes-256-cfb", "AES-256/CFB");
- //   map.insert("chacha20", "ChaCha");
+    map.insert("chacha20", "ChaCha");
 //    map.insert("chacha20-ietf", "ChaCha");
 //    map.insert("rc2-cfb", "RC2/CFB");
     map.insert("rc4-md5", "RC4-MD5");
-    map.insert("salsa20", "Salsa20");
+//    map.insert("salsa20", "Salsa20");
 
     return map;
 }
 
 QByteArray Cipher::update(const QByteArray &data)
 {
-    switch(_method)
-    {
-        case M_SALSA20:
-            return salsa20->update(data);
-        case M_RC4:
-            return rc4->update(data);
-        case M_AES:
-            return aes->update_CFB(data, _encode);
-        default:
-            throw std::runtime_error("ciphers are not initialised!!");
-
-    }
-
-    return QByteArray();
 /*    if (chacha) {
         return chacha->update(data);
     } else if (rc4) {
@@ -140,19 +119,11 @@ QByteArray Cipher::randomIv(int length)
         return QByteArray();
     }
 
-    QByteArray output;
-/*
     Botan::AutoSeeded_RNG rng;
     QByteArray out;
     out.resize(length);
     rng.randomize(reinterpret_cast<Botan::byte *>(out.data()), length);
     return out;
-    */
-    for(int j=0;j<length;j++)
-    {
-        output.append(qrand() % 256);
-    }
-    return output;
 }
 
 QByteArray Cipher::hmacSha1(const QByteArray &key, const QByteArray &msg)
@@ -169,7 +140,6 @@ QByteArray Cipher::md5Hash(const QByteArray &in)
 
 bool Cipher::isSupported(const QByteArray &method)
 {
-    /*
 #if BOTAN_VERSION_CODE < BOTAN_VERSION_CODE_FOR(1,11,0)
     if (method.contains("ChaCha"))  return true;
 #endif
@@ -187,8 +157,7 @@ bool Cipher::isSupported(const QByteArray &method)
         }
         delete filter;
         return true;
-    }*/
-    return true;
+    }
 }
 
 QList<QByteArray> Cipher::getSupportedMethodList()
