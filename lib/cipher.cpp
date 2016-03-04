@@ -21,6 +21,7 @@
  */
 
 #include "cipher.h"
+#include <QDebug>
 
 #include <stdexcept>
 #include <QCryptographicHash>
@@ -45,13 +46,19 @@ Cipher::Cipher(const QByteArray &method,
     }
     else if(method.contains("Salsa"))
     {
-        salsa20 = new Salsa20(key, iv);
+        salsa20 = new Salsa20(key, iv, this);
         _method = M_SALSA20;
     }else if(method.contains("AES"))
     {
-        aes     = new AES(key, iv);
+        aes     = new AES(key, iv, this);
         _method = M_AES;
-    }else{
+    }else if(method.contains("ChaCha"))
+    {
+        chacha = new ChaCha(key, iv, this);
+        _method = M_CHACHA20;
+    }
+
+    else{
         qWarning() << "no such cipher method : " << method;
     }
 }
@@ -73,8 +80,8 @@ QMap<QByteArray, Cipher::CipherKeyIVLength> Cipher::generateKeyIvMap()
     map.insert("aes-128-cfb", {16, 16});
     map.insert("aes-192-cfb", {24, 16});
     map.insert("aes-256-cfb", {32, 16});
-//    map.insert("chacha20", {32, 8});
-//    map.insert("chacha20-ietf", {32, 12});
+    map.insert("chacha20", {32, 8});
+    map.insert("chacha20-ietf", {32, 12});
 //    map.insert("rc2-cfb", {16, 8});
     map.insert("rc4-md5", {16, 16});
     map.insert("salsa20", {32, 8});
@@ -87,8 +94,8 @@ QMap<QByteArray, QByteArray> Cipher::generateCipherNameMap()
     map.insert("aes-128-cfb", "AES-128/CFB");
     map.insert("aes-192-cfb", "AES-192/CFB");
     map.insert("aes-256-cfb", "AES-256/CFB");
- //   map.insert("chacha20", "ChaCha");
-//    map.insert("chacha20-ietf", "ChaCha");
+    map.insert("chacha20", "ChaCha");
+    map.insert("chacha20-ietf", "ChaCha");
 //    map.insert("rc2-cfb", "RC2/CFB");
     map.insert("rc4-md5", "RC4-MD5");
     map.insert("salsa20", "Salsa20");
@@ -106,6 +113,8 @@ QByteArray Cipher::update(const QByteArray &data)
             return rc4->update(data);
         case M_AES:
             return aes->update_CFB(data, _encode);
+        case M_CHACHA20:
+            return chacha->update(data);
         default:
             throw std::runtime_error("ciphers are not initialised!!");
 

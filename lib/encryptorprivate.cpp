@@ -23,6 +23,7 @@
 #include "encryptorprivate.h"
 #include "cipher.h"
 
+
 using namespace QSS;
 
 EncryptorPrivate::EncryptorPrivate(const QString &m,
@@ -35,6 +36,7 @@ EncryptorPrivate::EncryptorPrivate(const QString &m,
     valid = true;
 
     Cipher::CipherKeyIVLength ki = Cipher::keyIvMap.value(method);
+
     method = Cipher::cipherNameMap.value(method);
     if (ki[0] == 0 || !Cipher::isSupported(method)) {
         qCritical("The method %s is not supported.", m.toStdString().data());

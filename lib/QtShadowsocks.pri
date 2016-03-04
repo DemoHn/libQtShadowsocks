@@ -5,27 +5,27 @@
 SOURCES  += \
             address.cpp \
             addresstester.cpp \
-            #chacha.cpp \
+            chacha.cpp \
             cipher.cpp \
             common.cpp \
             controller.cpp \
             encryptor.cpp \
             encryptorprivate.cpp \
-            #rc4.cpp \
+            rc4.cpp \
             tcprelay.cpp \
             udprelay.cpp \
             httpproxy.cpp \
             socketstream.cpp \
             tcpserver.cpp \
             cipher/aes.cpp \
-            cipher/rc4.cpp \
+            #cipher/rc4.cpp \
             cipher/salsa20.cpp
 
 
 HEADERS  += \
             address.h \
             addresstester.h \
-            #chacha.h \
+            chacha.h \
             cipher.h \
             common.h \
             controller.h \
@@ -34,12 +34,12 @@ HEADERS  += \
             export.h \
             profile.h \
             QtShadowsocks \
-            #rc4.h \
+            rc4.h \
             tcprelay.h \
             udprelay.h \
             httpproxy.h \
             socketstream.h \
             tcpserver.h \
             cipher/aes.h \
-            cipher/rc4.h \
+           # cipher/rc4.h \
             cipher/salsa20.h

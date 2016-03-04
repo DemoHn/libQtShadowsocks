@@ -2,17 +2,21 @@
 #include <QDebug>
 
 using namespace QSS;
+
 RC4::RC4(const QByteArray &key, const QByteArray &iv, QObject *parent) :
     QObject(parent)
 {
     realKey = md5Hash(key + iv);
     realKey.resize(key.size());
     //generate();
+    //ss = new State;
+    unsigned char *__key = reinterpret_cast<unsigned char *>(realKey.data());
+    _setup(&ss, __key);
 }
 
 RC4::~RC4()
 {
-
+    //delete ss;
 }
 
 QByteArray RC4::md5Hash(const QByteArray &data)
@@ -35,12 +39,14 @@ void RC4::_setup(State *s, uchar *key)
     }
 }
 
-QByteArray RC4::_crypt(State *s, const QByteArray &input)
+QByteArray RC4::_crypt(State *s,const QByteArray &input)
 {
     quint32 len = input.size();
     unsigned char sx, sy;
     unsigned char * state;
 
+    s->x = 0;
+    s->y = 0;
     sx = s->x;
     sy = s->y;
     state = s->m;
@@ -60,14 +66,15 @@ QByteArray RC4::_crypt(State *s, const QByteArray &input)
     return output;
 }
 
-QByteArray RC4::update(const QByteArray &input)
+QByteArray RC4::update(QByteArray const &input)
 {
-    unsigned char *key = reinterpret_cast<unsigned char *>(realKey.data());
+    /*unsigned char *key = reinterpret_cast<unsigned char *>(realKey.data());
     State s;
 
-    _setup(&s, key);
-    return _crypt(&s, input);
+    _setup(&s, key);*/
+    return _crypt(&ss, input);
 }
+
 
 /*
 QByteArray RC4::update(QByteArray &input)

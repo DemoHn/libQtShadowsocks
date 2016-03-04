@@ -7,22 +7,18 @@
 #include <cstdint> // we use 32-bit words
 #include <cstdlib>
 
-// rotate x to left by n bits, the bits that go over the left edge reappear on the right
-#define R(x,n) (((x) << (n)) | ((x) >> (32-(n))))
+#define ROUNDS 20
+#define U32C(v) (v##U)
 
 #define KEY_LENGTH 32
 #define IV_LENGTH 8
-// addition wraps modulo 2^32
-// the choice of 7,9,13,18 "doesn't seem very important" (spec)
-#define quarter(a,b,c,d) do {\
-    b ^= R(d+a, 7);\
-    c ^= R(a+b, 9);\
-    d ^= R(b+c, 13);\
-    a ^= R(c+d, 18);\
-} while (0)
+#define BLOCK_SIZE 64
+
+#define NATIVE_LITTLE_ENDIAN
+// https://github.com/jedisct1/libsodium
 
 namespace QSS {
-// code ref : https://github.com/andres-erbsen/salsa20/blob/master/salsa20.c
+
 class Salsa20 : public QObject
 {
     Q_OBJECT
@@ -35,8 +31,60 @@ private:
     QByteArray key;
     QByteArray iv;
 
-    void salsa20_words(uint32_t *out, uint32_t in[16]);
-    void salsa20_block(uint8_t *out, uint8_t key[32], uint64_t nonce, uint64_t index) ;
+    int counter;
+    int crypto_core_salsa20(
+            unsigned char *out,
+      const unsigned char *in,
+      const unsigned char *k,
+      const unsigned char *c
+    );
+
+    int crypto_stream_salsa20_xor_ic(
+            unsigned char *c,
+      const unsigned char *m, unsigned long long mlen,
+      const unsigned char *n, uint64_t ic,
+      const unsigned char *k
+    );
+
+    inline uint32_t rotate(uint32_t u,int c)
+    {
+      return (u << c) | (u >> (32 - c));
+    }
+
+    #define LOAD32_LE(SRC) Salsa20::load32_le(SRC)
+    static inline uint32_t
+    load32_le(const uint8_t src[4])
+    {
+    #ifdef NATIVE_LITTLE_ENDIAN
+        uint32_t w;
+        memcpy(&w, src, sizeof w);
+        return w;
+    #else
+        uint32_t w = (uint32_t) src[0];
+        w |= (uint32_t) src[1] <<  8;
+        w |= (uint32_t) src[2] << 16;
+        w |= (uint32_t) src[3] << 24;
+        return w;
+    #endif
+    }
+
+    #define STORE32_LE(DST, W) Salsa20::store32_le((DST), (W))
+    static inline void
+    store32_le(uint8_t dst[4], uint32_t w)
+    {
+    #ifdef NATIVE_LITTLE_ENDIAN
+        memcpy(dst, &w, sizeof w);
+    #else
+        dst[0] = (uint8_t) w; w >>= 8;
+        dst[1] = (uint8_t) w; w >>= 8;
+        dst[2] = (uint8_t) w; w >>= 8;
+        dst[3] = (uint8_t) w;
+    #endif
+    }
+
+
+    //void salsa20_words(uint32_t *out, uint32_t in[16]);
+    //void salsa20_block(uint8_t *out, uint8_t key[32], uint64_t nonce, uint64_t index) ;
 };
 
 }

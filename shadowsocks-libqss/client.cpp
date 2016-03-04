@@ -24,7 +24,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include "client.h"
-
+#include <QDebug>
 Client::Client(QObject *parent) :
     QObject(parent),
     lc(nullptr),

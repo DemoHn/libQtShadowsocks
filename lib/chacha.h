@@ -53,6 +53,8 @@ private:
 
     void chacha();
     void setIV(const QByteArray &_iv);
+
+
 };
 
 }

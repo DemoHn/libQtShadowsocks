@@ -34,10 +34,10 @@
 #include <QMap>
 #include <QDebug>
 
-#include "cipher/rc4.h"
+#include "cipher/rc4.h" // use original one?
 #include "cipher/salsa20.h"
 #include "cipher/aes.h"
-
+#include "chacha.h"
 #include "export.h"
 
 namespace QSS {
@@ -86,6 +86,7 @@ private:
     AES *aes;
     Salsa20 *salsa20;
     QByteArray iv;
+    ChaCha *chacha;
 
     CipherMethod _method;
     bool _encode;

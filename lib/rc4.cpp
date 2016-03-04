@@ -23,6 +23,7 @@
 #include "rc4.h"
 #include "cipher.h"
 #include "common.h"
+#include <QDebug>
 
 using namespace QSS;
 
@@ -46,12 +47,15 @@ RC4::RC4(const QByteArray &_key, const QByteArray &_iv, QObject *parent) :
                     % 256;
         std::swap(state[i], state[state_index]);
     }
+
+    qDebug() << "__rc4";
     generate();
 }
 
 QByteArray RC4::update(const QByteArray &input)
 {
     quint32 length = input.length();
+    qDebug() << "__data length " << length;
     QByteArray output;
     output.resize(length);
     const unsigned char *in =

@@ -23,11 +23,21 @@
 #include "chacha.h"
 #include "common.h"
 #include <stdexcept>
+#include <cstdint>
+#define NATIVE_LITTLE_ENDIAN
 
 using namespace QSS;
 
 // Using anonymous namespace and static keyword to 'hide' this function
 namespace {
+
+
+static inline quint32 rotate_left(quint32 u,int c)
+{
+  return (u << c) | (u >> (32 - c));
+}
+
+
 static inline void chacha_quarter_round(quint32 &a,
                                         quint32 &b,
                                         quint32 &c,
@@ -36,6 +46,35 @@ static inline void chacha_quarter_round(quint32 &a,
     c += d; b ^= c; b = rotate_left(b, 12);
     a += b; d ^= a; d = rotate_left(d, 8);
     c += d; b ^= c; b = rotate_left(b, 7);
+}
+
+static inline quint32 load_le(const uchar *key, uint offset)
+{
+    const uchar * src = key + offset * sizeof(quint32);
+#ifdef NATIVE_LITTLE_ENDIAN
+    quint32 w;
+    memcpy(&w, src, sizeof w);
+    return w;
+#else
+    quint32 w = (quint32) src[0];
+    w |= (quint32) src[1] <<  8;
+    w |= (quint32) src[2] << 16;
+    w |= (quint32) src[3] << 24;
+    return w;
+#endif
+}
+
+static inline void
+store_le(quint32 w, uint8_t dst[4])
+{
+#ifdef NATIVE_LITTLE_ENDIAN
+    memcpy(dst, &w, sizeof w);
+#else
+    dst[0] = (uint8_t) w; w >>= 8;
+    dst[1] = (uint8_t) w; w >>= 8;
+    dst[2] = (uint8_t) w; w >>= 8;
+    dst[3] = (uint8_t) w;
+#endif
 }
 
 }
@@ -55,14 +94,14 @@ ChaCha::ChaCha(const QByteArray &_key, const QByteArray &_iv, QObject *parent) :
     m_state[2] = 0x79622d32;
     m_state[3] = 0x6b206574;
 
-    m_state[4] = load_le<quint32>(key, 0);
-    m_state[5] = load_le<quint32>(key, 1);
-    m_state[6] = load_le<quint32>(key, 2);
-    m_state[7] = load_le<quint32>(key, 3);
-    m_state[8] = load_le<quint32>(key, 4);
-    m_state[9] = load_le<quint32>(key, 5);
-    m_state[10] = load_le<quint32>(key, 6);
-    m_state[11] = load_le<quint32>(key, 7);
+    m_state[4] = load_le(key, 0);
+    m_state[5] = load_le(key, 1);
+    m_state[6] = load_le(key, 2);
+    m_state[7] = load_le(key, 3);
+    m_state[8] = load_le(key, 4);
+    m_state[9] = load_le(key, 5);
+    m_state[10] = load_le(key, 6);
+    m_state[11] = load_le(key, 7);
 
     setIV(_iv);
 }
@@ -76,12 +115,12 @@ void ChaCha::setIV(const QByteArray &_iv)
     m_state[13] = 0;
 
     if (_iv.length() == 8) {
-        m_state[14] = load_le<quint32>(iv, 0);
-        m_state[15] = load_le<quint32>(iv, 1);
+        m_state[14] = load_le(iv, 0);
+        m_state[15] = load_le(iv, 1);
     } else if (_iv.length() == 12) {
-        m_state[13] = load_le<quint32>(iv, 0);
-        m_state[14] = load_le<quint32>(iv, 1);
-        m_state[15] = load_le<quint32>(iv, 2);
+        m_state[13] = load_le(iv, 0);
+        m_state[14] = load_le(iv, 1);
+        m_state[15] = load_le(iv, 2);
     } else {
         throw std::length_error("The IV length for ChaCha20 is invalid");
     }

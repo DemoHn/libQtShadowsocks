@@ -24,7 +24,7 @@
 #include <QTcpSocket>
 #include "controller.h"
 #include "encryptor.h"
-
+#include <QDebug>
 using namespace QSS;
 
 Controller::Controller(bool is_local, bool auto_ban, QObject *parent) :
@@ -104,6 +104,7 @@ bool Controller::setup(const Profile &p)
     }
 
     emit info("Initialising ciphers...");
+    qDebug() << "__profile" << p.method;
     ep = EncryptorPrivate(profile.method, profile.password);
     if (ep.isValid()) {
         emit info(ep.getInternalMethodName() + " (" + profile.method

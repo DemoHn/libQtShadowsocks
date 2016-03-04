@@ -6,6 +6,7 @@
 #include <QVector>
 
 namespace QSS {
+
 class RC4 : public QObject
 {
     Q_OBJECT
@@ -31,6 +32,7 @@ private:
     QByteArray _crypt(State *s, const QByteArray &input);
     QByteArray md5Hash(const QByteArray &data);
 
+    State ss;
 };
 
 }

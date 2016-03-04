@@ -260,7 +260,7 @@ void TcpRelay::onLocalTcpSocketReadyRead()
 
     if (stage == STREAM) {
         if (isLocal) {
-            Common::qOut << data.toHex() << endl;
+           // Common::qOut << data.toHex() << endl;
             if (auth) {
                 encryptor->addChunkAuth(data);
             }
