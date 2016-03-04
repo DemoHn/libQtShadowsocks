@@ -32,9 +32,12 @@
 #include <array>
 #include <QObject>
 #include <QMap>
+#include <QDebug>
 
-#include "rc4.h"
-#include "chacha.h"
+#include "cipher/rc4.h"
+#include "cipher/salsa20.h"
+#include "cipher/aes.h"
+
 #include "export.h"
 
 namespace QSS {
@@ -43,6 +46,11 @@ class QSS_EXPORT Cipher : public QObject
 {
     Q_OBJECT
 public:
+
+    enum CipherMethod{
+        NONE, M_AES, M_RC4, M_SALSA20, M_CHACHA20
+    };
+
     explicit Cipher(const QByteArray &method, const QByteArray &key, const QByteArray &iv, bool encode, QObject *parent = 0);
     //Cipher(Cipher &&) = default;
     ~Cipher();
@@ -75,9 +83,12 @@ public:
 
 private:
     RC4 *rc4;
-    ChaCha *chacha;
+    AES *aes;
+    Salsa20 *salsa20;
     QByteArray iv;
 
+    CipherMethod _method;
+    bool _encode;
     static QMap<QByteArray, CipherKeyIVLength> generateKeyIvMap();
     static QMap<QByteArray, QByteArray> generateCipherNameMap();
 };
