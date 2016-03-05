@@ -59,6 +59,11 @@ int main(int argc, char *argv[])
     QCommandLineOption localPort("l",
                   "port number of your local server. ignored in server mode.",
                   "local_port");
+
+    QCommandLineOption obfs("o",
+                  "OBFS plugin. More details see GitHub:breakwa11/shadowsocks-rss",
+                  "plain");
+
     QCommandLineOption password("k",
                                 "password of your remote server.",
                                 "password");
@@ -114,7 +119,8 @@ int main(int argc, char *argv[])
                 parser.value(timeout),
                 parser.isSet(http),
                 parser.isSet(debug),
-                parser.isSet(auth));
+                parser.isSet(auth),
+                parser.value(obfs));
     }
     c.setAutoBan(parser.isSet(autoBan));
     c.setDebug(parser.isSet(debug));

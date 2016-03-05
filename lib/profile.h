@@ -27,11 +27,21 @@
 
 namespace QSS {
 
+// Add OBFS plugin NOTE:
+/*
+    Currently, the plugin only suuport two methods:
+    http_simple or plain.
+
+    The latter one just means "no obfs plugin open"
+    DemoHn
+    2016.3.5
+*/
 struct Profile {
     QString server;
     QString local_address;
     QString method;
     QString password;
+    QString obfs; // obfs plugin
     quint16 server_port;
     quint16 local_port;
     int timeout;
@@ -48,7 +58,7 @@ struct Profile {
     bool auth;
 
     Profile() : local_address("127.0.0.1"), server_port(8388), local_port(1080),
-                timeout(600), http_proxy(false), debug(false), auth(false) {}
+                timeout(600), http_proxy(false), debug(false), auth(false), obfs("plain") {}
 };
 
 }

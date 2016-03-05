@@ -29,6 +29,7 @@
 #include <QTime>
 #include "address.h"
 #include "encryptor.h"
+#include "obfs.h"
 
 namespace QSS {
 
@@ -43,6 +44,7 @@ public:
                       const bool &is_local,
                       const bool &autoBan,
                       const bool &auth,
+                      const QString &obfs_method,
                       QObject *parent = 0);
 
     enum STAGE { INIT, ADDR, UDP_ASSOC, DNS, CONNECTING, STREAM, DESTROYED };
@@ -83,6 +85,7 @@ private:
     void handleStageAddr(QByteArray&);
     bool writeToRemote(const QByteArray &);
 
+    OBFS *obfs;
 private slots:
     void onDNSResolved(const bool success, const QString errStr);
     void onRemoteConnected();

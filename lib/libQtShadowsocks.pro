@@ -21,6 +21,8 @@ isEmpty(INSTALL_PREFIX) {
 VERSION   = 1.8.4
 DEFINES  += QSS_VERSION=\\\"$$VERSION\\\"
 
+DESTDIR = $$top_srcdir/../build
+
 win32: {
 #increase the maximum pending tcp sockets. this value is 64 on Windows by default
     DEFINES    += "FD_SETSIZE=1024"

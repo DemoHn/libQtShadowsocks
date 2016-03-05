@@ -57,6 +57,7 @@ bool Client::readConfig(const QString &file)
     profile.timeout = confObj["timeout"].toInt();
     profile.http_proxy = confObj["http_proxy"].toBool();
     profile.auth = confObj["auth"].toBool();
+    profile.obfs = confObj["obfs"].toString();
 
     return true;
 }
@@ -70,7 +71,8 @@ void Client::setup(const QString &remote_addr,
                    const QString &timeout,
                    const bool http_proxy,
                    const bool debug,
-                   const bool auth)
+                   const bool auth,
+                   const QString &obfs_method)
 {
     profile.server = remote_addr;
     profile.server_port = remote_port.toInt();
@@ -82,6 +84,7 @@ void Client::setup(const QString &remote_addr,
     profile.http_proxy = http_proxy;
     profile.debug = debug;
     profile.auth = auth;
+    profile.obfs = obfs_method;
 }
 
 void Client::setAutoBan(bool ban)

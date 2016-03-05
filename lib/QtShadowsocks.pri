@@ -19,7 +19,8 @@ SOURCES  += \
             tcpserver.cpp \
             cipher/aes.cpp \
             #cipher/rc4.cpp \
-            cipher/salsa20.cpp
+            cipher/salsa20.cpp \
+            obfs.cpp
 
 
 HEADERS  += \
@@ -42,4 +43,5 @@ HEADERS  += \
             tcpserver.h \
             cipher/aes.h \
            # cipher/rc4.h \
-            cipher/salsa20.h
+            cipher/salsa20.h \
+            obfs.h

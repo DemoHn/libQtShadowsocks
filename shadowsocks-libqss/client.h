@@ -43,7 +43,8 @@ public:
                const QString &timeout,
                const bool http_proxy,
                const bool debug,
-               const bool auth);
+               const bool auth,
+               const QString &obfs_method);
 
     void setAutoBan(bool ban);
     void setDebug(bool debug);

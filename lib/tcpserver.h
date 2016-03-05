@@ -41,6 +41,7 @@ public:
                        const bool &auto_ban,
                        const bool &auth,
                        const Address &serverAddress,
+                       const QString &obfs_method,
                        QObject *parent = nullptr);
     ~TcpServer();
 
@@ -65,6 +66,7 @@ private:
     const int &timeout;
     const EncryptorPrivate &ep;
 
+    const QString &obfs_method;
     QList<TcpRelay*> conList;
     QList<QThread*> threadList;
     unsigned int workerThreadID;

@@ -10,4 +10,5 @@ SUBDIRS  = lib/libQtShadowsocks.pro \
            shadowsocks-libqss/shadowsocks-libqss.pro
 #           test/test.pro
 
-OTHER_FILES += README.md
+OTHER_FILES += README.md \
+                .gitignore

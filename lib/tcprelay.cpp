@@ -22,7 +22,7 @@
 
 #include "tcprelay.h"
 #include "common.h"
-
+#include <QDebug>
 using namespace QSS;
 
 TcpRelay::TcpRelay(QTcpSocket *localSocket,
@@ -32,6 +32,7 @@ TcpRelay::TcpRelay(QTcpSocket *localSocket,
                    const bool &is_local,
                    const bool &autoBan,
                    const bool &auth,
+                   const QString &obfs_method,
                    QObject *parent) :
     QObject(parent),
     stage(INIT),
@@ -42,6 +43,10 @@ TcpRelay::TcpRelay(QTcpSocket *localSocket,
     local(localSocket)
 {
     encryptor = new Encryptor(ep, this);
+
+    //obfs plugin
+    obfs = new OBFS(obfs_method, is_local, server_addr, this);
+
 
     connect(&remoteAddress, &Address::lookedUp,
             this, &TcpRelay::onDNSResolved);
@@ -156,7 +161,14 @@ void TcpRelay::handleStageAddr(QByteArray &data)
                 encryptor->addHeaderAuth(data);
             }
         }
-        dataToWrite.append(encryptor->encrypt(data));
+
+        //OBFS
+        data = obfs->preEncrypt(data);
+        data = encryptor->encrypt(data);
+        data = obfs->encode(data);
+
+        dataToWrite.append(data);
+
         serverAddress.lookUp();
     } else {
         if (auth) {
@@ -251,7 +263,10 @@ void TcpRelay::onLocalTcpSocketReadyRead()
     }
 
     if (!isLocal) {
+        data = obfs->decode(data);
         data = encryptor->decrypt(data);
+        data = obfs->postDecrypt(data);
+
         if (data.isEmpty()) {
             emit debug("Data is empty after decryption.");
             return;
@@ -264,7 +279,11 @@ void TcpRelay::onLocalTcpSocketReadyRead()
             if (auth) {
                 encryptor->addChunkAuth(data);
             }
+            //obfs
+            data = obfs->preEncrypt(data);
             data = encryptor->encrypt(data);
+            data = obfs->encode(data);
+
         } else if (auth) {
             if (!encryptor->verifyExtractChunkAuth(data)) {
                 emit info("Data chunk hash authentication failed.");
@@ -297,7 +316,11 @@ void TcpRelay::onLocalTcpSocketReadyRead()
             if (auth) {
                 encryptor->addChunkAuth(data);
             }
+
+            data = obfs->preEncrypt(data);
             data = encryptor->encrypt(data);
+            data = obfs->encode(data);
+
         } else if (auth) {
             if (!encryptor->verifyExtractChunkAuth(data)) {
                 emit info("Data chunk hash authentication failed.");
@@ -316,6 +339,8 @@ void TcpRelay::onLocalTcpSocketReadyRead()
 
 void TcpRelay::onRemoteTcpSocketReadyRead()
 {
+
+
     QByteArray buf = remote->readAll();
     if (buf.isEmpty()) {
         emit info("Remote received empty data.");
@@ -323,7 +348,18 @@ void TcpRelay::onRemoteTcpSocketReadyRead()
         return;
     }
     emit bytesRead(buf.size());
-    buf = isLocal ? encryptor->decrypt(buf) : encryptor->encrypt(buf);
+    //buf = isLocal ? encryptor->decrypt(buf) : encryptor->encrypt(buf);
+
+    if(isLocal){
+        buf = obfs->decode(buf);
+        buf = encryptor->decrypt(buf);
+        buf = obfs->postDecrypt(buf);
+    }else{
+        buf = obfs->preEncrypt(buf);
+        buf = encryptor->encrypt(buf);
+        buf = obfs->encode(buf);
+    }
+
     local->write(buf);
 }
 

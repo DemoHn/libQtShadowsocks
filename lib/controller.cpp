@@ -38,6 +38,7 @@ Controller::Controller(bool is_local, bool auto_ban, QObject *parent) :
                               autoBan,
                               profile.auth,
                               serverAddress,
+                              profile.obfs,
                               this);
 
     //FD_SETSIZE which is the maximum value on *nix platforms. (1024 by default)
@@ -104,7 +105,6 @@ bool Controller::setup(const Profile &p)
     }
 
     emit info("Initialising ciphers...");
-    qDebug() << "__profile" << p.method;
     ep = EncryptorPrivate(profile.method, profile.password);
     if (ep.isValid()) {
         emit info(ep.getInternalMethodName() + " (" + profile.method

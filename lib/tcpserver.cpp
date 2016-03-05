@@ -33,6 +33,7 @@ TcpServer::TcpServer(const EncryptorPrivate &ep,
                      const bool &auto_ban,
                      const bool &auth,
                      const Address &serverAddress,
+                     const QString &obfs_method,
                      QObject *parent) :
     QTcpServer(parent),
     isLocal(is_local),
@@ -41,6 +42,7 @@ TcpServer::TcpServer(const EncryptorPrivate &ep,
     serverAddress(serverAddress),
     timeout(timeout),
     ep(ep),
+    obfs_method(obfs_method),
     workerThreadID(0)
 {
     totalWorkers = std::thread::hardware_concurrency();
@@ -83,7 +85,9 @@ void TcpServer::incomingConnection(qintptr socketDescriptor)
                                  ep,
                                  isLocal,
                                  autoBan,
-                                 auth);
+                                 auth,
+                                 obfs_method,
+                                 this);
     conList.append(con);
     connect(con, &TcpRelay::info, this, &TcpServer::info);
     connect(con, &TcpRelay::debug, this, &TcpServer::debug);
