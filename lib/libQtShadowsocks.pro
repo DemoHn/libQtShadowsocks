@@ -13,8 +13,9 @@ TARGET    = QtShadowsocks
 TEMPLATE  = lib
 
 isEmpty(INSTALL_PREFIX) {
-    unix: INSTALL_PREFIX = /usr
-    else: INSTALL_PREFIX = $$top_srcdir
+#    unix: INSTALL_PREFIX = /usr
+#    else: INSTALL_PREFIX = $$top_srcdir
+    INSTALL_PREFIX = $$top_srcdir
 }
 
 
@@ -22,6 +23,8 @@ VERSION   = 1.8.4
 DEFINES  += QSS_VERSION=\\\"$$VERSION\\\"
 
 DESTDIR = $$top_srcdir/../build
+
+unix : DEFINES += QSS_STATIC
 
 win32: {
 #increase the maximum pending tcp sockets. this value is 64 on Windows by default
