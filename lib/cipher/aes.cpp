@@ -98,7 +98,7 @@ QByteArray AES::encode(QByteArray &input, bool _encode)
 QByteArray AES::decode(QByteArray &input)
 {
     //truncate padding data
-    QByteArray & decode_data = encode(input, false);
+    QByteArray decode_data = encode(input, false);
 
     int len = decode_data.length();
     int truncate_length = 0;
