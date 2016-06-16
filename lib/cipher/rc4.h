@@ -14,7 +14,7 @@ public:
     RC4(const QByteArray &key, const QByteArray &iv, QObject *parent = 0);
     ~RC4();
 
-    QByteArray RC4::update(const QByteArray &input);
+    QByteArray update(const QByteArray &input);
 
 private:
     //void generate();
